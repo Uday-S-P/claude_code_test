@@ -1,12 +1,23 @@
 # Progressive Web App (PWA) Setup Guide
 
+## 🌐 Live App
+
+**The app is now live!**
+
+**URL:** https://uday-s-p.github.io/claude_code_test/
+
+Access it from any device with a modern browser (iPhone, Android, Desktop).
+
+---
+
 ## Overview
 
 The Property Area Verification app is now a **Progressive Web App** that can:
-- ✅ Work offline after first load
-- ✅ Be installed on phone home screen (like a native app)
-- ✅ Save data locally (survives app close and phone restart)
-- ✅ Work on any phone with a modern browser
+- ✅ **Access online** via GitHub Pages URL
+- ✅ **Work offline** after first load
+- ✅ **Install to home screen** (like a native app)
+- ✅ **Save data locally** (survives app close and phone restart)
+- ✅ **Work on any phone** with a modern browser
 
 ## Features Implemented
 
@@ -35,37 +46,46 @@ The Property Area Verification app is now a **Progressive Web App** that can:
 
 ## How to Use
 
-### **On Desktop Browser**
-1. Open `index.html` in Chrome, Edge, or Opera
-2. Data saves automatically
-3. Close and reopen - your work is still there!
+### **Quick Start (Recommended)**
 
-### **On Phone (iPhone or Android)**
+1. **Open in any browser:**
+   ```
+   https://uday-s-p.github.io/claude_code_test/
+   ```
 
-#### **Install to Home Screen:**
+2. **Start using immediately** - No installation required!
 
-**iPhone (Safari):**
-1. Open `index.html` in Safari
-2. Tap the Share button (square with arrow)
-3. Tap "Add to Home Screen"
-4. Tap "Add"
-5. App icon appears on home screen!
+3. **Optional:** Install to home screen for app-like experience (see below)
 
-**Android (Chrome):**
-1. Open `index.html` in Chrome
-2. Tap the menu (three dots)
-3. Tap "Add to Home Screen" or "Install App"
-4. Tap "Install"
-5. App icon appears on home screen!
+---
+
+### **Install to Home Screen (Optional but Recommended)**
+
+Makes the app feel like a native app with full-screen mode.
+
+#### **On iPhone (Safari):**
+1. Open https://uday-s-p.github.io/claude_code_test/ in Safari
+2. Tap the **Share** button (square with arrow at bottom)
+3. Scroll down and tap **"Add to Home Screen"**
+4. Tap **"Add"**
+5. App icon appears on home screen! 📱
+
+#### **On Android (Chrome):**
+1. Open https://uday-s-p.github.io/claude_code_test/ in Chrome
+2. Tap the **menu** (three dots)
+3. Tap **"Add to Home Screen"** or **"Install App"**
+4. Tap **"Install"**
+5. App icon appears on home screen! 📱
 
 **OR** Look for the install prompt/banner that appears automatically.
 
 #### **Use Like a Native App:**
-- Tap the icon on your home screen
-- Opens in full screen (no browser UI)
-- Works offline
-- Data persists between sessions
-- Bluetooth works normally
+- ✅ Tap the icon on your home screen
+- ✅ Opens in full screen (no browser UI)
+- ✅ Works offline (after first load)
+- ✅ Data persists between sessions
+- ✅ Bluetooth works normally
+- ✅ Feels just like a native app!
 
 ## Files Added
 

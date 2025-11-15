@@ -58,7 +58,15 @@ The Property Area Verification System is a React-based web application that help
 - **Smart Thickness**: Different thicknesses for internal, external, and wet-area walls
 - **Thickness Verification**: Measure and verify actual wall thicknesses
 
-#### 6. Export & Reporting
+#### 6. Data Persistence & PWA
+- **Auto-Save**: All data automatically saved to localStorage
+- **Session Restore**: Previous work loads automatically on app restart
+- **Offline Mode**: Works without internet after first load (via service worker)
+- **Install to Home Screen**: Use like a native app on iPhone/Android
+- **Clear Session**: Reset and start fresh anytime
+- **Data Survives**: App close, browser close, phone restart
+
+#### 7. Export & Reporting
 - **RERA CSV Export**: Export data in official RERA Area Calculation Sheet format
   - Follows standard template with all required sections
   - "As per" (Planned) vs "Actual" (Measured) columns
@@ -73,6 +81,9 @@ The Property Area Verification System is a React-based web application that help
 - **PDF Processing**: PDF.js 3.11.174
 - **OCR Engine**: Tesseract.js 2.1.5 with adaptive threshold preprocessing
 - **Bluetooth**: Web Bluetooth API
+- **Data Persistence**: localStorage API
+- **PWA**: Service Worker + Web App Manifest
+- **Hosting**: GitHub Pages (https://uday-s-p.github.io/claude_code_test/)
 - **UI Components**: Custom React components with icon library
 - **Testing**: Jest 29.7.0 + React Testing Library (69 unit tests, 94% pass rate)
 
@@ -133,12 +144,22 @@ The application follows a single-page architecture with tab-based workflow:
 
 ### Getting Started
 
+#### **Option 1: Use Online (Recommended)**
+1. Visit **https://uday-s-p.github.io/claude_code_test/**
+2. **On Phone (iPhone/Android):**
+   - Safari/Chrome → Share → "Add to Home Screen"
+   - Opens like a native app!
+3. Upload a floor plan PDF or image
+4. Review auto-detected rooms (or add manually)
+5. Connect Bluetooth laser measuring device (optional)
+6. Take measurements and verify against plan
+7. Export results to RERA CSV or JSON
+
+#### **Option 2: Run Locally**
 1. Open `src/web-app/index.html` in a supported browser
-2. Upload a floor plan PDF or image
-3. Review auto-detected rooms (or add manually)
-4. Connect Bluetooth laser measuring device (optional)
-5. Take measurements and verify against plan
-6. Export results
+2. Follow steps 3-7 above
+
+**Note:** Online version has full PWA features (offline mode, data persistence)
 
 ### Testing
 
@@ -359,9 +380,11 @@ For issues or questions:
 **Status**: Production-ready with full features
 
 **Recent Updates**:
-- ✅ RERA CSV export functionality
-- ✅ Automatic room numbering for duplicates
-- ✅ Mobile-responsive design optimization
-- ✅ Improved PDF room detection (Phase 1)
-- ✅ Enhanced regex patterns for multi-word room names
-- ✅ Comprehensive unit testing (69 tests, 94% pass rate)
+- ✅ **PWA Implementation** - Install to home screen, works offline
+- ✅ **Data Persistence** - Auto-save with localStorage
+- ✅ **GitHub Pages Hosting** - Access from anywhere via URL
+- ✅ **RERA CSV Export** - Official format for regulatory compliance
+- ✅ **Automatic Room Numbering** - Duplicates get sequential numbers
+- ✅ **Mobile-Responsive Design** - Touch-friendly, adaptive layouts
+- ✅ **Improved PDF Detection** - Multi-word names, flexible formats
+- ✅ **Comprehensive Testing** - 69 unit tests, 94% pass rate
