@@ -4,7 +4,11 @@
       "Bash(git remote set-url:*)",
       "Bash(git push)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm install)",
+      "Bash(sudo chown:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test)"
     ]
   },
   "outputStyle": "default"

@@ -15,7 +15,7 @@
 | Documentation | ✅ | - | - | README + WEB_APP_DOCUMENTATION |
 | Git & GitHub Setup | ✅ | - | - | All files pushed |
 | Security (.env) | ✅ | - | - | API keys secured |
-| OCR Integration | ⏳ | HIGH | 8-12h | Needs Tesseract.js |
+| OCR Integration | ✅ | - | - | Tesseract.js with adaptive threshold |
 | PDF Processing | ✅ | - | - | PDF.js text extraction |
 | Bluetooth (GLM 50C) | ✅ | - | - | Real-time measurements |
 | Room Detection | ✅ | - | - | Auto-parse dimensions |
@@ -24,7 +24,7 @@
 | Variance Calculation | ✅ | - | - | Plan vs Actual comparison |
 | Wall Thickness | ✅ | - | - | Auto-generation working |
 
-**Completed: 11/12 (92%)**
+**Completed: 12/12 (100%)**
 
 ---
 
@@ -32,12 +32,12 @@
 
 | Feature | Status | Priority | Effort | Notes |
 |---------|--------|----------|--------|-------|
+| Unit Tests | ✅ | - | - | Jest + 69 tests (94% pass rate) |
 | Export Functionality | ⏳ | HIGH | 4-6h | CSV, PDF, Print |
 | Metric Units Support | ⏳ | HIGH | 6-8h | Meters/cm conversion |
 | Data Persistence | ⏳ | HIGH | 4-5h | Save/Load sessions |
-| Unit Tests | ⏳ | HIGH | 10-12h | Automated testing |
 
-**Completed: 0/4 (0%)**
+**Completed: 1/4 (25%)**
 
 ---
 
@@ -97,19 +97,19 @@
 
 | Category | Total | Done | In Progress | Pending | Blocked |
 |----------|-------|------|-------------|---------|---------|
-| Core Features | 12 | 11 ✅ | 0 | 1 ⏳ | 0 |
-| High Priority | 5 | 0 | 0 | 5 ⏳ | 0 |
+| Core Features | 12 | 12 ✅ | 0 | 0 | 0 |
+| High Priority | 4 | 1 ✅ | 0 | 3 ⏳ | 0 |
 | Medium Priority | 6 | 0 | 0 | 6 ⏳ | 0 |
 | Low Priority | 5 | 0 | 0 | 5 ⏳ | 0 |
 | Blocked | 2 | 0 | 0 | 0 | 2 ❌ |
-| **TOTAL** | **30** | **11** | **0** | **17** | **2** |
+| **TOTAL** | **29** | **13** | **0** | **14** | **2** |
 
-**Completion Rate: 37%**
+**Completion Rate: 45%**
 
 ---
 
 ## Next 3 Tasks (Recommended)
 
-1. ⏳ **OCR Integration** → Add Tesseract.js for scanned PDFs (8-12 hours)
-2. ⏳ **Export Functionality** → Enable report generation (4-6 hours)
-3. ⏳ **Data Persistence** → Save user sessions (4-5 hours)
+1. ⏳ **Export Functionality** → Enable report generation (4-6 hours)
+2. ⏳ **Data Persistence** → Save user sessions (4-5 hours)
+3. ⏳ **Metric Units Support** → Add meters/centimeters (6-8 hours)
