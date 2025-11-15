@@ -1,0 +1,16 @@
+{
+  "name": "Property Area Verification",
+  "short_name": "PropertyCheck",
+  "description": "Professional property area verification system with PDF analysis and Bluetooth measuring device integration",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [],
+  "categories": ["business", "productivity", "utilities"],
+  "screenshots": [],
+  "shortcuts": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
