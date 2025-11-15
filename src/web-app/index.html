@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional property area verification system with PDF analysis and Bluetooth measuring device integration">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PropertyCheck">
     <title>Property Area Verification - Complete</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -193,6 +204,82 @@
             const GLM_CHARACTERISTIC_UUID = "00004301-0000-0041-5253-534f46540000";
 
             const fileInputRef = useRef(null);
+
+            // LocalStorage - Data Persistence
+            const STORAGE_KEY = 'propertyVerificationData';
+
+            const saveToLocalStorage = () => {
+                try {
+                    const dataToSave = {
+                        activeTab,
+                        analysisResults,
+                        measurements,
+                        wallMeasurements,
+                        measurementHistory,
+                        lastMeasurement,
+                        savedAt: new Date().toISOString()
+                    };
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+                    console.log('Data saved to localStorage');
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                    addNotification('Failed to save data locally', 'error');
+                }
+            };
+
+            const loadFromLocalStorage = () => {
+                try {
+                    const savedData = localStorage.getItem(STORAGE_KEY);
+                    if (savedData) {
+                        const parsed = JSON.parse(savedData);
+                        setActiveTab(parsed.activeTab || 'upload');
+                        setAnalysisResults(parsed.analysisResults || null);
+                        setMeasurements(parsed.measurements || []);
+                        setWallMeasurements(parsed.wallMeasurements || []);
+                        setMeasurementHistory(parsed.measurementHistory || []);
+                        setLastMeasurement(parsed.lastMeasurement || null);
+                        console.log('Data loaded from localStorage');
+                        addNotification('Previous session restored', 'success');
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                    addNotification('Failed to load previous session', 'error');
+                    return false;
+                }
+            };
+
+            const clearLocalStorage = () => {
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                    setActiveTab('upload');
+                    setUploadedFiles([]);
+                    setAnalysisResults(null);
+                    setMeasurements([]);
+                    setWallMeasurements([]);
+                    setMeasurementHistory([]);
+                    setLastMeasurement(null);
+                    setLogs([]);
+                    console.log('Data cleared from localStorage');
+                    addNotification('Session cleared successfully', 'success');
+                } catch (error) {
+                    console.error('Error clearing localStorage:', error);
+                    addNotification('Failed to clear session', 'error');
+                }
+            };
+
+            // Load data on mount
+            useEffect(() => {
+                loadFromLocalStorage();
+            }, []);
+
+            // Auto-save when key data changes
+            useEffect(() => {
+                if (analysisResults || measurements.length > 0 || wallMeasurements.length > 0) {
+                    saveToLocalStorage();
+                }
+            }, [analysisResults, measurements, wallMeasurements, measurementHistory, lastMeasurement, activeTab]);
 
             // Utility Functions
             const addLog = (message, type = 'info') => {
@@ -1995,17 +2082,32 @@ const parseRoomData = (text) => {
                                         onClick={connectGLM50C}
                                         disabled={isConnecting || glmDevice}
                                         className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-base ${
-                                            glmDevice 
+                                            glmDevice
                                                 ? 'bg-green-100 text-green-700 border border-green-300'
                                                 : 'bg-blue-600 text-white hover:bg-blue-700'
                                         }`}
                                     >
                                         <BluetoothIcon className="icon" />
                                         <span>
-                                            {isConnecting ? 'Connecting...' : 
+                                            {isConnecting ? 'Connecting...' :
                                             glmDevice ? 'Connected' : 'Connect'}
                                         </span>
                                     </button>
+
+                                    {(measurements.length > 0 || wallMeasurements.length > 0) && (
+                                        <button
+                                            onClick={() => {
+                                                if (confirm('Clear all data and start a new session? This cannot be undone.')) {
+                                                    clearLocalStorage();
+                                                }
+                                            }}
+                                            className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-base bg-red-600 text-white hover:bg-red-700"
+                                            title="Clear session data"
+                                        >
+                                            <XIcon className="icon" />
+                                            <span className="hidden sm:inline">Clear</span>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -2085,6 +2187,22 @@ const parseRoomData = (text) => {
 
         // Render the application
         ReactDOM.render(<PropertyVerificationApp />, document.getElementById('root'));
+    </script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
