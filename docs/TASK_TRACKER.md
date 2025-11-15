@@ -23,8 +23,11 @@
 | Manual Room Entry | ✅ | - | - | Add/Edit/Remove rooms |
 | Variance Calculation | ✅ | - | - | Plan vs Actual comparison |
 | Wall Thickness | ✅ | - | - | Auto-generation working |
+| Room Numbering | ✅ | - | - | Auto-number duplicates (TERRACE - 1, etc.) |
+| Mobile Responsive | ✅ | - | - | Touch-friendly, adaptive layouts |
+| PDF Room Detection Phase 1 | ✅ | - | - | Multi-word names, optional X separator |
 
-**Completed: 12/12 (100%)**
+**Completed: 15/15 (100%)**
 
 ---
 
@@ -33,11 +36,11 @@
 | Feature | Status | Priority | Effort | Notes |
 |---------|--------|----------|--------|-------|
 | Unit Tests | ✅ | - | - | Jest + 69 tests (94% pass rate) |
-| Export Functionality | ⏳ | HIGH | 4-6h | CSV, PDF, Print |
+| Export Functionality | ✅ | - | - | RERA CSV + JSON export complete |
 | Metric Units Support | ⏳ | HIGH | 6-8h | Meters/cm conversion |
 | Data Persistence | ⏳ | HIGH | 4-5h | Save/Load sessions |
 
-**Completed: 1/4 (25%)**
+**Completed: 2/4 (50%)**
 
 ---
 
@@ -97,19 +100,26 @@
 
 | Category | Total | Done | In Progress | Pending | Blocked |
 |----------|-------|------|-------------|---------|---------|
-| Core Features | 12 | 12 ✅ | 0 | 0 | 0 |
-| High Priority | 4 | 1 ✅ | 0 | 3 ⏳ | 0 |
+| Core Features | 15 | 15 ✅ | 0 | 0 | 0 |
+| High Priority | 4 | 2 ✅ | 0 | 2 ⏳ | 0 |
 | Medium Priority | 6 | 0 | 0 | 6 ⏳ | 0 |
 | Low Priority | 5 | 0 | 0 | 5 ⏳ | 0 |
 | Blocked | 2 | 0 | 0 | 0 | 2 ❌ |
-| **TOTAL** | **29** | **13** | **0** | **14** | **2** |
+| **TOTAL** | **32** | **17** | **0** | **13** | **2** |
 
-**Completion Rate: 45%**
+**Completion Rate: 53%**
 
 ---
 
 ## Next 3 Tasks (Recommended)
 
-1. ⏳ **Export Functionality** → Enable report generation (4-6 hours)
-2. ⏳ **Data Persistence** → Save user sessions (4-5 hours)
-3. ⏳ **Metric Units Support** → Add meters/centimeters (6-8 hours)
+1. ⏳ **Data Persistence** → Save user sessions (4-5 hours)
+2. ⏳ **Metric Units Support** → Add meters/centimeters (6-8 hours)
+3. ⏳ **Improved OCR Accuracy** → Better preprocessing (8-12 hours)
+
+## Recent Completions (November 15, 2025)
+
+✅ **RERA CSV Export** - Professional export format for regulatory compliance
+✅ **Automatic Room Numbering** - Duplicate room names get sequential numbers
+✅ **Mobile Optimization** - Touch-friendly responsive design for phones
+✅ **PDF Room Detection Phase 1** - Enhanced regex for multi-word names and flexible formats

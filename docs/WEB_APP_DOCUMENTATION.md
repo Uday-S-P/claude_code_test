@@ -14,12 +14,20 @@
 
 ### 2. **Intelligent Room Detection**
 The app automatically extracts room information from floor plans:
-- **Pattern Matching**: Finds room names followed by dimensions (e.g., "MASTER BEDROOM 13'10" × 12'6"")
+- **Advanced Pattern Matching**: Finds room names followed by dimensions
+  - Multi-word names: LIVING ROOM, MASTER BEDROOM, WALK IN CLOSET
+  - Hyphenated with numbers: BEDROOM-1, BEDROOM-2, BEDROOM-3
+  - Optional X separator: Handles both "11'-0" × 10'-8"" and "11'-0" 10'-8""
+  - Complex formats: "16'-10"" with multiple separators (apostrophe + hyphen)
 - **Multiple Formats**: Recognizes various dimension formats:
   - `11'6"` (feet-inches)
   - `11-6` (hyphenated)
   - `11.5` (decimal feet)
   - `1106` (glued digits → 11'6")
+- **Automatic Room Numbering**: Duplicate room names get sequential numbers
+  - TOILET, TOILET → TOILET - 1, TOILET - 2
+  - TERRACE, TERRACE → TERRACE - 1, TERRACE - 2
+  - Single rooms remain unchanged (no " - 1" suffix)
 - **Smart Filtering**: Excludes non-room text like "FLOOR", "NOTE", "DETAILS"
 - **Room Classification**: Categorizes rooms (bedroom, bathroom, kitchen, living, etc.)
 - **Confidence Scoring**: Assigns confidence levels to detected rooms
@@ -57,13 +65,33 @@ Compares planned vs actual measurements:
 - **Remove Rooms**: Delete incorrect detections
 - **Fallback Data**: If no rooms detected, provides sample data for testing
 
-### 7. **User Interface**
+### 7. **Export & Reporting**
+Two export formats available:
+- **RERA CSV Export**: Official RERA Area Calculation Sheet format
+  - Follows standardized template structure
+  - Header section with client/project information
+  - Section 1: Room Floor Area Calculations table
+  - "As per" (Planned) vs "Actual" (Measured) columns
+  - Up to 30 rows with subtotals
+  - Professional format for regulatory compliance
+- **JSON Export**: Complete data export with all measurements, variance analysis, and compliance scoring
+
+### 8. **Mobile-Responsive Design**
+Fully optimized for phones and tablets:
+- **Adaptive Layouts**: Stacks vertically on mobile, horizontal on desktop
+- **Touch-Friendly**: All buttons meet minimum 44px tap target size
+- **Responsive Text**: Font sizes adapt to screen size (text-xs sm:text-base)
+- **Scrollable Tables**: Horizontal scroll on mobile to prevent data cutoff
+- **Optimized Navigation**: Tab navigation scrolls horizontally on small screens
+- **Smart Button Labels**: Shorter text on mobile ("RERA CSV Export" vs "Export RERA CSV Report")
+
+### 9. **User Interface**
 5-tab workflow:
 1. **Upload**: Document upload and file management
 2. **Analysis**: View detected rooms and extraction results
 3. **Measurements**: Record actual room dimensions (with Bluetooth device)
 4. **Walls**: Wall thickness verification
-5. **Export**: Export verification results
+5. **Export**: Export verification results in RERA CSV or JSON format
 
 ## Technical Architecture
 
@@ -130,12 +158,20 @@ Example: 11'6" → 11.5 feet
 
 #### Pattern Matching
 ```regex
-Generic room pattern:
-([A-Z][A-Z\s\-]+?)\s+(\d+(?:['′-]\d+|[ ]\d+|['′])?|[1-9]\d{1,3})["″]?\s*[Xx×]\s*(\d+(?:['′-]\d+|[ ]\d+|['′])?|[1-9]\d{1,3})["″]?
+Generic room pattern (Phase 1 - Enhanced):
+([A-Z][A-Z\s\-0-9]*[A-Z0-9])\s+([\d]+[-''\s]+[\d]+[""]?)\s*(?:[xX×]\s*)?([\d]+[-''\s]+[\d]+[""]?)
+
+Improvements:
+- Multi-word names: [A-Z\s\-0-9]* captures spaces, hyphens, numbers
+- Hyphenated with numbers: BEDROOM-1, BEDROOM-2
+- Complex dimensions: [\d]+[-''\s]+[\d]+ handles multiple separators (16'-10")
+- Optional X separator: (?:[xX×]\s*)? - handles both "11'-0" × 10'-8"" and "11'-0" 10'-8""
+- Non-capturing group: (?:...) for X separator doesn't create extra match group
+- Greedy matching: [A-Z\s\-0-9]* captures full room names
 
 Matches:
-- Room name (one or more words)
-- Dimension separator (×, x, X, or space)
+- Room name (one or more words, with hyphens and numbers)
+- Optional dimension separator (×, x, X, or just spaces)
 - Length and breadth in various formats
 ```
 
