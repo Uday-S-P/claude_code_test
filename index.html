@@ -183,6 +183,7 @@
             const [analysisResults, setAnalysisResults] = useState(null);
             const [measurements, setMeasurements] = useState([]);
             const [wallMeasurements, setWallMeasurements] = useState([]);
+            const [wallMeasurementsEnabled, setWallMeasurementsEnabled] = useState(false);
             const [isAnalyzing, setIsAnalyzing] = useState(false);
             const [notifications, setNotifications] = useState([]);
             const [validationErrors, setValidationErrors] = useState([]);
@@ -215,6 +216,7 @@
                         analysisResults,
                         measurements,
                         wallMeasurements,
+                        wallMeasurementsEnabled,
                         measurementHistory,
                         lastMeasurement,
                         savedAt: new Date().toISOString()
@@ -236,6 +238,7 @@
                         setAnalysisResults(parsed.analysisResults || null);
                         setMeasurements(parsed.measurements || []);
                         setWallMeasurements(parsed.wallMeasurements || []);
+                        setWallMeasurementsEnabled(parsed.wallMeasurementsEnabled || false);
                         setMeasurementHistory(parsed.measurementHistory || []);
                         setLastMeasurement(parsed.lastMeasurement || null);
                         console.log('Data loaded from localStorage');
@@ -279,7 +282,7 @@
                 if (analysisResults || measurements.length > 0 || wallMeasurements.length > 0) {
                     saveToLocalStorage();
                 }
-            }, [analysisResults, measurements, wallMeasurements, measurementHistory, lastMeasurement, activeTab]);
+            }, [analysisResults, measurements, wallMeasurements, wallMeasurementsEnabled, measurementHistory, lastMeasurement, activeTab]);
 
             // Utility Functions
             const addLog = (message, type = 'info') => {
@@ -1331,7 +1334,26 @@ const parseRoomData = (text) => {
                         <p className="text-lg text-gray-600">Upload PDF or image files of your property floor plan</p>
                     </div>
 
-                    <div 
+                    {/* Wall Measurements Toggle */}
+                    <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm mb-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900">Wall Thickness Measurements</h3>
+                                <p className="text-sm text-gray-600 mt-1">Enable this if you need to measure wall thicknesses</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={wallMeasurementsEnabled}
+                                    onChange={(e) => setWallMeasurementsEnabled(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div
                         className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
                         onDragOver={handleDragOver}
                         onDrop={handleDrop}
@@ -1796,10 +1818,10 @@ const parseRoomData = (text) => {
 
                     <div className="mt-8 text-center">
                         <button
-                            onClick={() => setActiveTab('walls')}
+                            onClick={() => setActiveTab(wallMeasurementsEnabled ? 'walls' : 'export')}
                             className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors text-lg font-medium"
                         >
-                            Proceed to Wall Measurements →
+                            {wallMeasurementsEnabled ? 'Proceed to Wall Measurements →' : 'Proceed to Export →'}
                         </button>
                     </div>
                 </div>
@@ -2124,7 +2146,13 @@ const parseRoomData = (text) => {
                                     { id: 'measurements', name: 'Measure', icon: RulerIcon },
                                     { id: 'walls', name: 'Walls', icon: CalculatorIcon },
                                     { id: 'export', name: 'Export', icon: DownloadIcon }
-                                ].map((tab) => {
+                                ].filter(tab => {
+                                    // Hide Walls tab if wall measurements are disabled
+                                    if (tab.id === 'walls' && !wallMeasurementsEnabled) {
+                                        return false;
+                                    }
+                                    return true;
+                                }).map((tab) => {
                                     const canAccess = canAccessTab(tab.id);
                                     const isActive = activeTab === tab.id;
                                     
