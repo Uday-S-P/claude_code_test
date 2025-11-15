@@ -1,3 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(git remote set-url:*)",
+      "Bash(git push)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  },
   "outputStyle": "default"
 }
