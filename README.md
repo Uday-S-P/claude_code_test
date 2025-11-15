@@ -117,7 +117,7 @@ The application follows a single-page architecture with tab-based workflow:
 
 ### Getting Started
 
-1. Open `WORKING_property-verification-bluetooth_26Sep2025.html` in a supported browser
+1. Open `src/web-app/index.html` in a supported browser
 2. Upload a floor plan PDF or image
 3. Review auto-detected rooms (or add manually)
 4. Connect Bluetooth laser measuring device (optional)
@@ -149,12 +149,17 @@ A lightweight Python command-line tool for interacting with Anthropic's Claude A
 
 ### Installation
 
-1. Install required packages:
+1. Navigate to the CLI directory:
 ```bash
-pip install anthropic python-dotenv
+cd src/cli
 ```
 
-2. Create `.env` file with your API key:
+2. Install required packages:
+```bash
+pip install -r requirements.txt
+```
+
+3. Create `.env` file in the project root with your API key:
 ```
 ANTHROPIC_API_KEY=your_api_key_here
 ```
@@ -163,17 +168,17 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 Basic usage:
 ```bash
-./claude_cli.py "Your prompt here"
+python src/cli/claude_cli.py "Your prompt here"
 ```
 
 With specific model:
 ```bash
-./claude_cli.py "Explain quantum computing" -m claude-3-sonnet-20240229
+python src/cli/claude_cli.py "Explain quantum computing" -m claude-3-sonnet-20240229
 ```
 
 With longer response:
 ```bash
-./claude_cli.py "Write a detailed analysis" -t 2048
+python src/cli/claude_cli.py "Write a detailed analysis" -t 2048
 ```
 
 ### Available Models
@@ -194,13 +199,23 @@ With longer response:
 
 ```
 .
-├── WORKING_property-verification-bluetooth_26Sep2025.html    # Main web application
-├── claude_cli.py                                              # Claude CLI tool
-├── .env                                                       # Environment variables (API keys)
-├── Plan_1.png                                                 # Project documentation/planning
-├── claude_code_test/                                          # Test directory
-├── .claude/                                                   # Claude Code configuration
-└── README.md                                                  # This file
+├── src/                           # Source code
+│   ├── web-app/                   # Property verification web application
+│   │   └── index.html            # Main web application (React SPA)
+│   └── cli/                       # Command-line tools
+│       ├── claude_cli.py         # Claude CLI utility
+│       └── requirements.txt      # Python dependencies
+├── docs/                          # Documentation
+│   ├── images/                    # Screenshots, diagrams, planning
+│   │   └── Plan_1.png            # Project planning diagram
+│   └── guides/                    # User guides and tutorials
+├── tests/                         # Test files
+├── scripts/                       # Utility scripts
+├── config/                        # Configuration files
+├── .claude/                       # Claude Code configuration
+├── .env                           # Environment variables (gitignored)
+├── .gitignore                     # Git ignore rules
+└── README.md                      # This file
 ```
 
 ## Security Considerations
