@@ -1990,14 +1990,18 @@ const parseRoomData = (text) => {
                                     <span className="text-gray-600">Measured Rooms:</span>
                                     <span className="font-medium">{measurements.filter(r => r.actualArea).length}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Total Walls:</span>
-                                    <span className="font-medium">{wallMeasurements.length}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Measured Walls:</span>
-                                    <span className="font-medium">{wallMeasurements.filter(w => w.actualThickness).length}</span>
-                                </div>
+                                {wallMeasurementsEnabled && (
+                                    <>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600">Total Walls:</span>
+                                            <span className="font-medium">{wallMeasurements.length}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600">Measured Walls:</span>
+                                            <span className="font-medium">{wallMeasurements.filter(w => w.actualThickness).length}</span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -2020,7 +2024,7 @@ const parseRoomData = (text) => {
 
                     <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm mb-6">
                         <h3 className="text-xl font-semibold mb-4">Measurement Summary</h3>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className={`grid grid-cols-1 ${wallMeasurementsEnabled ? 'lg:grid-cols-2' : ''} gap-6`}>
                             <div>
                                 <h4 className="font-medium mb-3">Room Areas</h4>
                                 <div className="space-y-2">
@@ -2034,19 +2038,21 @@ const parseRoomData = (text) => {
                                     ))}
                                 </div>
                             </div>
-                            <div>
-                                <h4 className="font-medium mb-3">Wall Thickness</h4>
-                                <div className="space-y-2">
-                                    {wallMeasurements.map(wall => (
-                                        <div key={wall.id} className="flex justify-between text-sm">
-                                            <span className="truncate">{wall.name.split(' between ')[1] || wall.name}</span>
-                                            <span className={`measurement-status-${wall.status}`}>
-                                                {wall.actualThickness ? `${wall.actualThickness.toFixed(3)}ft` : 'Pending'}
-                                            </span>
-                                        </div>
-                                    ))}
+                            {wallMeasurementsEnabled && (
+                                <div>
+                                    <h4 className="font-medium mb-3">Wall Thickness</h4>
+                                    <div className="space-y-2">
+                                        {wallMeasurements.map(wall => (
+                                            <div key={wall.id} className="flex justify-between text-sm">
+                                                <span className="truncate">{wall.name.split(' between ')[1] || wall.name}</span>
+                                                <span className={`measurement-status-${wall.status}`}>
+                                                    {wall.actualThickness ? `${wall.actualThickness.toFixed(3)}ft` : 'Pending'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 
