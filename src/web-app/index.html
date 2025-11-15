@@ -1941,24 +1941,26 @@ const parseRoomData = (text) => {
                         </div>
                     </div>
 
-                    <div className="text-center space-y-4">
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="text-center space-y-4 px-3 sm:px-0">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                             <button
                                 onClick={exportCSV}
-                                className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors text-lg font-medium"
+                                className="bg-green-600 text-white px-6 sm:px-8 py-3 rounded-lg hover:bg-green-700 transition-colors text-base sm:text-lg font-medium w-full sm:w-auto"
                             >
                                 <DownloadIcon className="icon-lg inline mr-2" />
-                                Export RERA CSV Report
+                                <span className="hidden sm:inline">Export RERA CSV Report</span>
+                                <span className="sm:hidden">RERA CSV Export</span>
                             </button>
                             <button
                                 onClick={exportReport}
-                                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium"
+                                className="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-base sm:text-lg font-medium w-full sm:w-auto"
                             >
                                 <DownloadIcon className="icon-lg inline mr-2" />
-                                Export JSON Report
+                                <span className="hidden sm:inline">Export JSON Report</span>
+                                <span className="sm:hidden">JSON Export</span>
                             </button>
                         </div>
-                        <p className="text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-600 px-2">
                             RERA CSV format follows official area calculation template. JSON includes all measurements, variance analysis, and compliance scoring.
                         </p>
                     </div>
