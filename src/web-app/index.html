@@ -554,11 +554,11 @@ const parseRoomData = (text) => {
             }
         }
     });
-    
+
     // If no rooms found, use fallback
     if (rooms.length === 0) {
         addLog('No rooms found with generic pattern, creating sample data...');
-        
+
         const sampleRooms = [
             { name: 'MASTER BEDROOM', length: 13.8, breadth: 12.5, originalLength: "13'-10\"", originalBreadth: "12'-6\"" },
             { name: 'BEDROOM-2', length: 11.5, breadth: 10.5, originalLength: "11'-6\"", originalBreadth: "10'-6\"" },
@@ -582,7 +582,32 @@ const parseRoomData = (text) => {
             });
         });
     }
-    
+
+    // Add automatic numbering for duplicate room names
+    const roomNameCounts = {};
+    const roomNameIndices = {};
+
+    // First pass: count occurrences of each room name
+    rooms.forEach(room => {
+        const baseName = room.name;
+        roomNameCounts[baseName] = (roomNameCounts[baseName] || 0) + 1;
+    });
+
+    // Second pass: add numbering to duplicate names
+    rooms.forEach(room => {
+        const baseName = room.name;
+        if (roomNameCounts[baseName] > 1) {
+            // Initialize counter for this room name
+            if (!roomNameIndices[baseName]) {
+                roomNameIndices[baseName] = 1;
+            }
+            // Add number to room name
+            room.name = `${baseName} - ${roomNameIndices[baseName]}`;
+            addLog(`Renamed duplicate: ${baseName} -> ${room.name}`);
+            roomNameIndices[baseName]++;
+        }
+    });
+
     addLog(`Room extraction complete. Total: ${rooms.length} rooms found`);
     return rooms;
 };

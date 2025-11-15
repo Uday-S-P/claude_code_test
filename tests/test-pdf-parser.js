@@ -72,6 +72,31 @@ function parseRoomData(text) {
         }
     });
 
+    // Add automatic numbering for duplicate room names
+    const roomNameCounts = {};
+    const roomNameIndices = {};
+
+    // First pass: count occurrences of each room name
+    rooms.forEach(room => {
+        const baseName = room.name;
+        roomNameCounts[baseName] = (roomNameCounts[baseName] || 0) + 1;
+    });
+
+    // Second pass: add numbering to duplicate names
+    rooms.forEach(room => {
+        const baseName = room.name;
+        if (roomNameCounts[baseName] > 1) {
+            // Initialize counter for this room name
+            if (!roomNameIndices[baseName]) {
+                roomNameIndices[baseName] = 1;
+            }
+            // Add number to room name
+            room.name = `${baseName} - ${roomNameIndices[baseName]}`;
+            log(`Renamed duplicate: ${baseName} -> ${room.name}`);
+            roomNameIndices[baseName]++;
+        }
+    });
+
     log(`\nRoom extraction complete. Total: ${rooms.length} rooms found`);
     return { rooms, logs };
 }
@@ -277,12 +302,24 @@ async function runTests() {
     try {
         // Test Plan 1.pdf
         const plan1Path = path.join(pdfsDir, 'Plan 1.pdf');
-        const detectedRooms = await testPDF(plan1Path);
+        const detectedRooms1 = await testPDF(plan1Path);
 
         // Compare with expected results
-        compareResults(detectedRooms, plan1Expected, 'Plan 1.pdf');
+        compareResults(detectedRooms1, plan1Expected, 'Plan 1.pdf');
 
-        console.log('\n\n✅ Test complete!');
+        // Test Plan 2.pdf (no expected data yet, just analyze)
+        const plan2Path = path.join(pdfsDir, 'Plan 2.pdf');
+        if (fs.existsSync(plan2Path)) {
+            await testPDF(plan2Path);
+        }
+
+        // Test Plan 3.pdf (no expected data yet, just analyze)
+        const plan3Path = path.join(pdfsDir, 'Plan 3.pdf');
+        if (fs.existsSync(plan3Path)) {
+            await testPDF(plan3Path);
+        }
+
+        console.log('\n\n✅ All tests complete!');
 
     } catch (error) {
         console.error('\n❌ Test failed:', error.message);
