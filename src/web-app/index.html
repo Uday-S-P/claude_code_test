@@ -506,10 +506,14 @@ const parseRoomData = (text) => {
     
     // IMPROVED: Generic pattern to match ANY room name followed by dimensions
     // This pattern will find:
-    // 1. One or more words (room name)
-    // 2. Followed by feet-inches dimension
-    // 3. Followed by another feet-inches dimension
-    const genericRoomPattern = /([A-Z][A-Z\s\-]+?)\s+(\d+'-\d+"?)\s+(\d+'-\d+"?)/g;
+    // 1. Multi-word room names with hyphens, numbers, and spaces (e.g., "LIVING ROOM", "BEDROOM-1")
+    //    - Starts with capital letter
+    //    - Followed by letters, spaces, hyphens, numbers (greedy to capture full names)
+    //    - Must end with letter or number (not space/hyphen)
+    // 2. Followed by feet-inches dimension (flexible format: 11'-0", 11-0, 11'-0, etc.)
+    // 3. OPTIONAL X or × separator (or just spaces) - handles both "11'-0" × 10'-8"" and "11'-0" 10'-8""
+    // 4. Followed by another feet-inches dimension
+    const genericRoomPattern = /([A-Z][A-Z\s\-0-9]*[A-Z0-9])\s+([\d]+[-''\s]+[\d]+[""]?)\s*(?:[xX×]\s*)?([\d]+[-''\s]+[\d]+[""]?)/gi;
     
     // Words to exclude (not room names)
     const excludeWords = ['FLOOR', 'ENTRY', 'LANDSCAPE', 'PROVISION', 'CHARGING', 'POINT', 'SINK', 'BELOW'];
