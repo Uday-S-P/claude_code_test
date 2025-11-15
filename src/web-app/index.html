@@ -1057,44 +1057,167 @@ const parseRoomData = (text) => {
                 addNotification('Report exported successfully', 'success');
             };
 
+            const exportCSV = () => {
+                // CSV export in RERA Area Calculation Sheet format
+                const today = new Date().toISOString().split('T')[0];
+
+                // Build CSV content
+                let csv = [];
+
+                // Header information
+                csv.push(['RERA Area Calculation Sheet']);
+                csv.push([`Date: ${today}`]);
+                csv.push(['']);
+                csv.push(['Client Name:', '']);
+                csv.push(['Flat / Villa Number:', '']);
+                csv.push(['Project Name:', uploadedFiles[0]?.name || 'Property Verification']);
+                csv.push(['Date of Inspection:', today]);
+                csv.push(['Name of Inspector:', '']);
+                csv.push(['Name of Reviewer:', '']);
+                csv.push(['']);
+
+                // Section index
+                csv.push(['Section #', 'Name of Section']);
+                csv.push(['1.', 'ROOM FLOOR AREA CALCULATIONS (excluding wall area)']);
+                csv.push(['2.', 'CALCULATION OF FLOOR AREA COVERED BY INTERNAL WALLS']);
+                csv.push(['3.', 'EXTERNAL AREA CALCULATIONS (excluding wall area) - Not part of carpet area as per RERA']);
+                csv.push(['4.', 'SUMMARY TABLE']);
+                csv.push(['']);
+
+                // Section 1 - Room Floor Area Calculations
+                csv.push(['Section 1', 'ROOM FLOOR AREA CALCULATIONS (excluding wall area)']);
+                csv.push(['']);
+
+                // Table headers
+                csv.push([
+                    '#',
+                    'Room types',
+                    'Length (Feet)',
+                    '',
+                    'Breadth (Feet)',
+                    '',
+                    'Area (Square Feet)',
+                    ''
+                ]);
+                csv.push([
+                    '',
+                    '',
+                    'As per',
+                    'Actual',
+                    'As per',
+                    'Actual',
+                    'As per',
+                    'Actual'
+                ]);
+
+                // Room data
+                let subtotalAsPerArea = 0;
+                let subtotalActualArea = 0;
+
+                measurements.forEach((room, index) => {
+                    const asPerLength = room.plannedLength || '';
+                    const actualLength = room.actualLength || '';
+                    const asPerBreadth = room.plannedBreadth || '';
+                    const actualBreadth = room.actualBreadth || '';
+                    const asPerArea = room.plannedArea || '';
+                    const actualArea = room.actualArea || '';
+
+                    subtotalAsPerArea += room.plannedArea || 0;
+                    subtotalActualArea += room.actualArea || 0;
+
+                    csv.push([
+                        index + 1,
+                        room.name,
+                        asPerLength,
+                        actualLength,
+                        asPerBreadth,
+                        actualBreadth,
+                        asPerArea,
+                        actualArea
+                    ]);
+                });
+
+                // Add empty rows to make 30 total
+                const emptyRowsNeeded = 30 - measurements.length;
+                for (let i = 0; i < emptyRowsNeeded; i++) {
+                    csv.push([measurements.length + i + 1, '-', '', '', '', '', '', '']);
+                }
+
+                // Subtotal row
+                csv.push([
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    'Subtotal A',
+                    subtotalAsPerArea.toFixed(2),
+                    subtotalActualArea > 0 ? subtotalActualArea.toFixed(2) : ''
+                ]);
+
+                // Convert to CSV string
+                const csvContent = csv.map(row =>
+                    row.map(cell => {
+                        // Escape quotes and wrap in quotes if contains comma
+                        const cellStr = String(cell);
+                        if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+                            return `"${cellStr.replace(/"/g, '""')}"`;
+                        }
+                        return cellStr;
+                    }).join(',')
+                ).join('\n');
+
+                // Download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `RERA-Area-Calculation-${today}.csv`;
+                link.click();
+                URL.revokeObjectURL(url);
+
+                addNotification('CSV report exported successfully', 'success');
+            };
+
             const calculateComplianceScore = () => {
                 const completedRooms = measurements.filter(room => room.actualArea);
                 const completedWalls = wallMeasurements.filter(wall => wall.actualThickness);
-                
+
                 if (completedRooms.length === 0 && completedWalls.length === 0) return 0;
-                
+
                 const config = {
                     roomWeight: 0.7,
                     wallWeight: 0.3,
                     roomTolerance: 5,
                     wallTolerance: 10
                 };
-                
+
                 let totalScore = 0;
                 let totalWeight = 0;
-                
+
                 if (completedRooms.length > 0) {
-                    const roomVariances = completedRooms.map(room => 
+                    const roomVariances = completedRooms.map(room =>
                         calculateVariance(room.plannedArea, room.actualArea)
                     );
                     const avgRoomVariance = roomVariances.reduce((sum, v) => sum + v, 0) / roomVariances.length;
                     const roomScore = Math.max(0, 100 - Math.max(0, avgRoomVariance - config.roomTolerance));
-                    
+
                     totalScore += roomScore * config.roomWeight;
                     totalWeight += config.roomWeight;
                 }
-                
+
                 if (completedWalls.length > 0) {
-                    const wallVariances = completedWalls.map(wall => 
+                    const wallVariances = completedWalls.map(wall =>
                         calculateVariance(wall.plannedThickness, wall.actualThickness) * 100
                     );
                     const avgWallVariance = wallVariances.reduce((sum, v) => sum + v, 0) / wallVariances.length;
                     const wallScore = Math.max(0, 100 - Math.max(0, avgWallVariance - config.wallTolerance));
-                    
+
                     totalScore += wallScore * config.wallWeight;
                     totalWeight += config.wallWeight;
                 }
-                
+
                 return totalWeight > 0 ? totalScore / totalWeight : 0;
             };
 
@@ -1819,7 +1942,14 @@ const parseRoomData = (text) => {
                     </div>
 
                     <div className="text-center space-y-4">
-                        <div className="space-x-4">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button
+                                onClick={exportCSV}
+                                className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors text-lg font-medium"
+                            >
+                                <DownloadIcon className="icon-lg inline mr-2" />
+                                Export RERA CSV Report
+                            </button>
                             <button
                                 onClick={exportReport}
                                 className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium"
@@ -1829,7 +1959,7 @@ const parseRoomData = (text) => {
                             </button>
                         </div>
                         <p className="text-gray-600">
-                            Professional reports include all measurements, variance analysis, and compliance scoring
+                            RERA CSV format follows official area calculation template. JSON includes all measurements, variance analysis, and compliance scoring.
                         </p>
                     </div>
                 </div>
