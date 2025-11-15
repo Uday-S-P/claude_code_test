@@ -9,7 +9,7 @@
 ### 1. **Floor Plan Document Processing**
 - **Uploads**: Accepts PDF floor plans or images (JPEG, PNG, TIFF, BMP)
 - **Text Extraction**: Uses PDF.js to extract text from PDF documents
-- **OCR Processing**: If PDFs don't have text layers, it uses Tesseract.js to perform OCR (Optical Character Recognition) on the images
+- **OCR Processing**: ⏳ *Pending Implementation* - Will use Tesseract.js for scanned PDFs without text layers
 - **Validation**: Checks file types, sizes (max 50MB), and prevents duplicates
 
 ### 2. **Intelligent Room Detection**
@@ -74,11 +74,13 @@ Compares planned vs actual measurements:
 | Frontend Framework | React | 18 | UI components and state management |
 | Styling | Tailwind CSS | Latest (CDN) | Responsive design and styling |
 | PDF Processing | PDF.js | 3.11.174 | Extract text from PDF documents |
-| OCR Engine | Tesseract.js | 2.1.5 | Optical character recognition |
+| OCR Engine | ⏳ Pending | - | Tesseract.js integration planned |
 | Device Integration | Web Bluetooth API | Native | Connect to laser measuring devices |
 | Transpilation | Babel Standalone | Latest | JSX to JavaScript conversion |
 
 ### Advanced OCR Processing
+
+> **⏳ Note**: OCR functionality is currently pending implementation. The sections below describe the planned OCR features.
 
 #### Image Preprocessing
 - **Resolution**: Converts PDF pages to 300 DPI images for optimal OCR accuracy

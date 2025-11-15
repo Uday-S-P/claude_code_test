@@ -10,8 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- Add Tesseract.js OCR library to your HTML head: -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
@@ -61,36 +59,6 @@
 
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
-
-        // --- Tesseract worker singleton ---
-        let ocrWorker = null;
-        async function getOCRWorker() {
-            if (ocrWorker) return ocrWorker;
-            ocrWorker = await Tesseract.createWorker({
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                    const msg = `OCR Progress: ${Math.round((m.progress || 0) * 100)}%`;
-                    if (typeof addLog === 'function') addLog(msg); else console.log(msg);
-                    }
-                },
-                workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/worker.min.js',
-                corePath:   'https://cdn.jsdelivr.net/npm/tesseract.js-core@2.2.0/tesseract-core.wasm.js',
-                langPath:   'https://tessdata.projectnaptha.com/4.0.0'
-                });
-
-                await ocrWorker.load();  
-                await ocrWorker.loadLanguage('eng');
-                await ocrWorker.initialize('eng');
-                await ocrWorker.setParameters({
-                tessedit_pageseg_mode: '6',
-                preserve_interword_spaces: '1',
-                user_defined_dpi: '300',
-                tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'-\"xX× ",
-                tessedit_char_blacklist: "_{}[]()|~`@#$^&*+=;:,?<>"
-            });
-            return ocrWorker;
-        }
-
 
         // Icon Components
         const HomeIcon = ({ className = "icon" }) => (
@@ -383,16 +351,8 @@
                         addLog(`Page ${pageNum} processed, characters: ${pageText.length}`);
                     }
                     
-                    const extractedText = fullText.trim();
-                    
-                    // If no text found, try OCR
-                    if (extractedText.length < 10) {
-                        addLog('⚠️ No text layer found - attempting OCR extraction...');
-                        return await extractTextWithOCR(pdf);
-                    }
-                    
-                    addLog(`Text extraction complete. Total characters: ${extractedText.length}`);
-                    return extractedText;
+                    addLog(`Text extraction complete. Total characters: ${fullText.length}`);
+                    return fullText.trim();
                     
                 } catch (error) {
                     addLog(`PDF extraction failed: ${error.message}`, 'error');
@@ -400,107 +360,6 @@
                 }
             };
 
-            const extractTextWithOCR = async (pdf) => {
-                addLog('🔍 Starting OCR text extraction...');
-                let ocrText = '';
-    
-                try {
-                                        
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        addLog(`📷 Converting page ${pageNum} to image for OCR...`);
-                        
-                        const page = await pdf.getPage(pageNum);
-                        const scale = 300 / 72; // ~300 DPI
-                        const viewport = page.getViewport({ scale });
-
-                        
-                        // Create canvas for rendering
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        
-                        // Render page to canvas
-                        await page.render({
-                            canvasContext: ctx,
-                            viewport: viewport
-                        }).promise;
-
-                        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        const d = img.data;
-                        for (let i = 0; i < d.length; i += 4) {
-                        const g = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
-                        const v = g > 180 ? 255 : (g < 140 ? 0 : g); // crude adaptive-ish threshold
-                        d[i] = d[i+1] = d[i+2] = v;
-                        }
-                        ctx.putImageData(img, 0, 0);
-
-                        
-                        addLog(`🤖 Running OCR on page ${pageNum}...`);
-                        
-                        // Fixed OCR recognition with proper error handling
-                        const worker = await getOCRWorker();
-
-                        let ocrResult;
-                        try {
-                            ocrResult = await worker.recognize(canvas);
-                            addLog(`OCR raw result structure: ${JSON.stringify(Object.keys(ocrResult))}`);
-                        } catch (error) {
-                            addLog(`OCR recognition error: ${error.message}`, 'error');
-                            throw error;
-                        }
-
-                        // Handle different result structures
-                        let text = '';
-                        if (ocrResult && ocrResult.data && ocrResult.data.text) {
-                            text = ocrResult.data.text;
-                            addLog(`OCR extracted via data.text: "${text}"`);
-                        } else if (ocrResult && ocrResult.text) {
-                            text = ocrResult.text;
-                            addLog(`OCR extracted via direct text: "${text}"`);
-                        } else if (typeof ocrResult === 'string') {
-                            text = ocrResult;
-                            addLog(`OCR extracted as string: "${text}"`);
-                        } else {
-                            addLog(`Unknown OCR result structure: ${JSON.stringify(ocrResult)}`, 'warning');
-                            text = '';
-                        }
-
-
-                        // Clean up OCR artifacts (MOVE THIS AFTER THE TESSERACT CALL)
-                        const cleanedText = text
-                            .replace(/[Ã‚Â°%]/g, "'")
-                            .replace(/[""]/g, '"')
-                            .replace(/ROC/g, 'ROOM')
-                            .replace(/TORET/g, 'TOILET')
-                            .replace(/\s+/g, ' ')
-                            .trim();
-
-                        addLog(`Cleaned OCR text: "${cleanedText}"`);
-                        ocrText += cleanedText + ' ';
-                                                
-                        addLog(`✅ OCR completed for page ${pageNum}, extracted ${text.length} characters`);
-                        addLog(`Raw OCR text: "${text}"`);
-                        
-                        // Clean up canvas
-                        canvas.remove();
-                    }
-                    
-                    const finalText = ocrText.trim();
-                    addLog(`🎉 OCR extraction complete. Total characters: ${finalText.length}`);
-                    addLog(`OCR Preview: "${finalText.substring(0, 300)}..."`);
-                    
-                    return finalText;
-                    
-                } catch (error) {
-                    const msg = error && error.message ? error.message : String(error);
-                    addLog(`❌ OCR extraction failed: ${msg}`, 'error');
-                    throw new Error(`OCR failed: ${msg}`);
-                }
-
-            };
-
-            
             // Room Data Parsing - NOW STORES IN FEET
             // Replace the parseRoomData function with this improved version
 const parseRoomData = (text) => {
@@ -518,18 +377,10 @@ const parseRoomData = (text) => {
     // 1. One or more words (room name)
     // 2. Followed by feet-inches dimension
     // 3. Followed by another feet-inches dimension
-    // Enhanced pattern to handle both space and X-separated dimensions
-    const genericRoomPattern =
-     /([A-Z][A-Z\s\-]+?)\s+(\d+(?:['′-]\d+|[ ]\d+|['′])?|[1-9]\d{1,3})["″]?\s*[Xx×]\s*(\d+(?:['′-]\d+|[ ]\d+|['′])?|[1-9]\d{1,3})["″]?/g;
-
+    const genericRoomPattern = /([A-Z][A-Z\s\-]+?)\s+(\d+'-\d+"?)\s+(\d+'-\d+"?)/g;
     
     // Words to exclude (not room names)
-    const excludeWords = [
-    'FLOOR','ENTRY','LANDSCAPE','PROVISION','CHARGING','POINT','SINK','BELOW',
-    'NOTE','DETAILS','SUBJECT','CHANGE','SANCTION','SERVICES','STRUCTURAL','SITE','CONDITIONS','MATRIX','RENT',
-    'PE','P E','PS','TN','I35','™'
-    ];
-
+    const excludeWords = ['FLOOR', 'ENTRY', 'LANDSCAPE', 'PROVISION', 'CHARGING', 'POINT', 'SINK', 'BELOW'];
     
     const matches = [...upperText.matchAll(genericRoomPattern)];
     
@@ -545,45 +396,32 @@ const parseRoomData = (text) => {
             addLog(`Found room: ${potentialRoomName}: ${dim1} x ${dim2}`);
             
             const lengthFt = convertToFeet(dim1);
-            const widthFt  = convertToFeet(dim2);
-            const areaFt   = lengthFt * widthFt;
-
-            if (lengthFt > 0 && widthFt > 0 && lengthFt <= 60 && widthFt <= 60) {
-            if (areaFt >= 6 && areaFt <= 1000) {
+            const widthFt = convertToFeet(dim2);
+            const areaFt = lengthFt * widthFt;
+            
+            if (lengthFt > 0 && widthFt > 0) {
                 const room = {
-                id: roomId++,
-                name: potentialRoomName,
-                type: determineRoomType(potentialRoomName),
-                plannedLength: parseFloat(lengthFt.toFixed(2)),
-                plannedBreadth: parseFloat(widthFt.toFixed(2)),
-                plannedArea: parseFloat(areaFt.toFixed(2)),
-                originalLengthFormat: dim1,
-                originalBreadthFormat: dim2,
-                confidence: 0.95,
-                originalText: `${potentialRoomName} ${dim1} × ${dim2}`
+                    id: roomId++,
+                    name: potentialRoomName,
+                    type: determineRoomType(potentialRoomName),
+                    plannedLength: parseFloat(lengthFt.toFixed(2)),
+                    plannedBreadth: parseFloat(widthFt.toFixed(2)),
+                    plannedArea: parseFloat(areaFt.toFixed(2)),
+                    originalLengthFormat: dim1,
+                    originalBreadthFormat: dim2,
+                    confidence: 0.95,
+                    originalText: `${potentialRoomName} ${dim1} × ${dim2}`
                 };
+                
                 rooms.push(room);
                 addLog(`Created: ${potentialRoomName} = ${lengthFt.toFixed(2)}ft x ${widthFt.toFixed(2)}ft = ${areaFt.toFixed(2)} sq ft`);
-            } else {
-                addLog(`Skipped ${potentialRoomName}: implausible area ${areaFt.toFixed(2)} sq ft`);
             }
-            } else {
-            addLog(`Skipped ${potentialRoomName}: implausible dims ${lengthFt.toFixed(2)}ft × ${widthFt.toFixed(2)}ft`);
-            }
-
         }
     });
     
     // If no rooms found, use fallback
     if (rooms.length === 0) {
-                if (text.length < 10) {
-                addLog('⚠️ No rooms detected and no text available');
-                addLog('🔧 Using fallback room data');
-            } else {
-                addLog(`⚠️ No rooms detected despite having ${text.length} characters of text`);
-                addLog('🔍 Text may not contain standard room dimension patterns');
-                addLog('🔧 Using fallback room data');
-            }
+        addLog('No rooms found with generic pattern, creating sample data...');
         
         const sampleRooms = [
             { name: 'MASTER BEDROOM', length: 13.8, breadth: 12.5, originalLength: "13'-10\"", originalBreadth: "12'-6\"" },
@@ -614,35 +452,51 @@ const parseRoomData = (text) => {
 };
 
             // Improved feet-inches conversion
-            const convertToFeet = (raw) => {
-                if (!raw) return 0;
-                const s = String(raw).replace(/[″”]/g,'"').replace(/[′’]/g,"'").replace(/\s+/g,'').trim();
-                addLog(`Converting dimension: "${raw}" -> "${s}"`);
-
-                // 1) feet'inches" e.g., 11'10"
-                let m = s.match(/^(\d{1,2})'(\d{1,2})"?$/);
-                if (m) { const f=+m[1], i=+m[2]; if (i<12) return f + i/12; }
-
-                // 2) feet-inches with hyphen or space e.g., 11-10 or 11 10
-                m = s.match(/^(\d{1,2})[- ](\d{1,2})$/);
-                if (m) { const f=+m[1], i=+m[2]; if (i<12) return f + i/12; }
-
-                // 3) glued 3–4 digits e.g., 910 -> 9'10", 1110 -> 11'10", 55 -> 5'5"
-                m = s.match(/^(\d{1,2})(\d{2})$/);
-                if (m) { const f=+m[1], i=+m[2]; if (i<60) return f + (i/12); }
-
-                // 4) feet only e.g., 11'
-                m = s.match(/^(\d{1,2})'$/);
-                if (m) return +m[1];
-
-                // 5) decimal feet e.g., 11.5
-                m = s.match(/^\d+(\.\d+)?$/);
-                if (m) return +s;
-
-                addLog(`Failed to parse dimension: "${raw}"`);
+            const convertToFeet = (feetInches) => {
+                if (!feetInches) return 0;
+                
+                const cleanInput = feetInches.toString().replace(/["""'']/g, '').trim();
+                addLog(`Converting dimension: "${feetInches}" -> "${cleanInput}"`);
+                
+                // Try feet-inches format: 11-0, 11'-0", 11-0"
+                let match = cleanInput.match(/^(\d+)[-']\s*(\d+)["']?$/);
+                if (match) {
+                    const feet = parseInt(match[1]);
+                    const inches = parseInt(match[2]);
+                    const totalFeet = feet + (inches / 12.0);
+                    addLog(`Converted ${cleanInput}: ${feet}ft ${inches}in = ${totalFeet.toFixed(3)}ft`);
+                    return totalFeet;
+                }
+                
+                // Try feet only with apostrophe: 11'
+                match = cleanInput.match(/^(\d+)['']$/);
+                if (match) {
+                    const feet = parseInt(match[1]);
+                    addLog(`Converted ${cleanInput}: ${feet}ft = ${feet}ft`);
+                    return feet;
+                }
+                
+                // Try decimal feet: 11.5
+                match = cleanInput.match(/^(\d+\.?\d*)$/);
+                if (match) {
+                    const feet = parseFloat(match[1]);
+                    addLog(`Converted ${cleanInput}: ${feet}ft`);
+                    return feet;
+                }
+                
+                // Try space-separated feet inches: "11 0"
+                match = cleanInput.match(/^(\d+)\s+(\d+)$/);
+                if (match) {
+                    const feet = parseInt(match[1]);
+                    const inches = parseInt(match[2]);
+                    const totalFeet = feet + (inches / 12.0);
+                    addLog(`Converted ${cleanInput}: ${feet}ft ${inches}in = ${totalFeet.toFixed(3)}ft`);
+                    return totalFeet;
+                }
+                
+                addLog(`Failed to parse dimension: "${feetInches}"`);
                 return 0;
             };
-
 
             const determineRoomType = (roomName) => {
                     const name = roomName.toLowerCase();

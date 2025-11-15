@@ -20,11 +20,11 @@ The Property Area Verification System is a React-based web application that help
 #### 1. Document Processing
 - **Multi-format Support**: Upload PDF floor plans or images (JPEG, PNG, TIFF, BMP)
 - **PDF Text Extraction**: Uses PDF.js to extract embedded text from floor plans
-- **OCR Technology**: Tesseract.js integration for image-based or scanned documents
 - **Smart Dimension Parsing**: Automatically detects room names and dimensions in various formats:
   - Feet-inches notation (e.g., 11'6" x 10'6")
   - Hyphenated format (e.g., 11-6 x 10-6)
   - Decimal feet (e.g., 11.5 x 10.5)
+- **OCR Technology**: ⏳ *Pending* - Tesseract.js integration for scanned documents
 
 #### 2. Bluetooth Integration
 - **Bosch GLM 50C Support**: Real-time connection to Bluetooth laser distance measuring devices
@@ -61,9 +61,9 @@ The Property Area Verification System is a React-based web application that help
 - **Frontend**: React 18 (with Babel transpilation)
 - **Styling**: Tailwind CSS
 - **PDF Processing**: PDF.js 3.11.174
-- **OCR Engine**: Tesseract.js 2.1.5
 - **Bluetooth**: Web Bluetooth API
 - **UI Components**: Custom React components with icon library
+- **OCR Engine**: ⏳ *Pending* - Tesseract.js integration planned
 
 ### Architecture
 
@@ -310,5 +310,6 @@ For issues or questions:
 
 ---
 
-**Last Updated**: September 26, 2025
+**Last Updated**: November 15, 2025
+**Current Version**: September 11, 2025 (Bluetooth working, OCR pending)
 **Status**: Working prototype with Bluetooth integration
